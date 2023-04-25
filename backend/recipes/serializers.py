@@ -3,8 +3,14 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingList, Tag)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingList,
+    Tag
+)
 from users.serializers import CustomUserSerializer
 
 User = get_user_model()
@@ -88,8 +94,10 @@ class ShowRecipeFullSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return ShoppingList.objects.filter(recipe=obj,
-                                           user=request.user).exists()
+        return ShoppingList.objects.filter(
+            recipe=obj,
+            user=request.user,
+        ).exists()
 
 
 class AddRecipeIngredientsSerializer(serializers.ModelSerializer):
@@ -212,8 +220,10 @@ class ShoppingListSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user = data['user']
         recipe_id = data['recipe'].id
-        if ShoppingList.objects.filter(user=user,
-                                       recipe__id=recipe_id).exists():
+        if ShoppingList.objects.filter(
+            user=user,
+            recipe__id=recipe_id,
+        ).exists():
             raise ValidationError('Рецепт уже добавлен в список покупок!')
         return data
 

@@ -13,6 +13,8 @@ User = get_user_model()
 
 
 class FollowApiView(APIView):
+    """Подписаться/отписаться."""
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
@@ -37,6 +39,8 @@ class FollowApiView(APIView):
 
 
 class ListFollowViewSet(generics.ListAPIView):
+    """Страница подписок."""
+
     permission_classes = [IsAuthenticated]
     serializer_class = ShowFollowersSerializer
     pagination_class = CustomPageNumberPaginator

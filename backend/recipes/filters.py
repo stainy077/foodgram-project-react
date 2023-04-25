@@ -44,8 +44,14 @@ class RecipeFilter(filters.FilterSet):
             return Recipe.objects.filter(in_favorite__user=self.request.user)
         return Recipe.objects.all()
 
+    # def get_shopping(self, queryset, name, item_value):
+    #     """Метод получения рецептов в списке покупок."""
+    #     if item_value:
+    #         return Recipe.objects.filter(shopping_cart__user=self.request.user)
+    #     return Recipe.objects.all()
+
     def get_shopping(self, queryset, name, item_value):
         """Метод получения рецептов в списке покупок."""
-        if item_value:
-            return Recipe.objects.filter(shopping_cart__user=self.request.user)
-        return Recipe.objects.all()
+        if item_value and not self.request.user.is_anonymous:
+            return queryset.filter(shopping_cart__user=self.request.user)
+        return queryset

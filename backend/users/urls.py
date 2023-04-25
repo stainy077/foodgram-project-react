@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import include, path 
 from djoser.views import TokenCreateView, TokenDestroyView
 
 from users.views import FollowApiView, ListFollowViewSet

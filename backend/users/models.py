@@ -27,6 +27,7 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ['username']
+        # ordering = ['id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -54,6 +55,7 @@ class Follow(models.Model):
             name='unigue_subscriber',
         )]
         ordering = ['-author']
+        # ordering = ['-id']
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
 
