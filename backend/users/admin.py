@@ -5,6 +5,8 @@ from users.models import Follow, User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    """Администрирование пользователей."""
+
     list_display = (
         'id',
         'username',
@@ -15,11 +17,13 @@ class UserAdmin(admin.ModelAdmin):
     )
     list_filter = ('username', 'email')
     search_fields = ('username', 'email')
-    empty_value_display = '-пусто-'
+    empty_value_display = '<пусто>'
 
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
+    """Администрирование подписок."""
+
     list_display = ('id', 'user', 'author')
     list_filter = ('user', 'author')
-    empty_value_display = '-пусто-'
+    empty_value_display = '<пусто>'

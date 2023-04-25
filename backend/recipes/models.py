@@ -6,7 +6,7 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
-    """Модель, описывающая ингредиенты и их единицы измерения."""
+    """Модель ингредиентов."""
 
     name = models.CharField(
         max_length=200,
@@ -27,7 +27,7 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    """Модель, описывающая теги, их цвет и идентификатор(slug)."""
+    """Модель тегов."""
 
     name = models.CharField(
         max_length=200,
@@ -57,7 +57,7 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    """Модель, описывающая рецепты и их характеристики."""
+    """Модель рецептов."""
 
     author = models.ForeignKey(
         User,
@@ -167,7 +167,6 @@ class Favorite(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        # related_name='favorite',
         related_name='favorites',
         verbose_name='Пользователь',
     )

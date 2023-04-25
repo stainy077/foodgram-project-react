@@ -3,18 +3,9 @@ import django_filters as filters
 from recipes.models import Ingredient, Recipe
 
 
-class IngredientsFilter(filters.FilterSet):
-    name = filters.CharFilter(
-        field_name='name',
-        lookup_expr='icontains',
-    )
-
-    class Meta:
-        model = Ingredient
-        fields = ('name',)
-
-
 class RecipeFilter(filters.FilterSet):
+    """Класс фильтрации рецептов."""
+
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         lookup_expr="iexact",
@@ -40,18 +31,27 @@ class RecipeFilter(filters.FilterSet):
 
     def get_favorite(self, queryset, name, item_value):
         """Метод получения рецептов в избранном."""
+
         if item_value:
             return Recipe.objects.filter(in_favorite__user=self.request.user)
         return Recipe.objects.all()
 
-    # def get_shopping(self, queryset, name, item_value):
-    #     """Метод получения рецептов в списке покупок."""
-    #     if item_value:
-    #         return Recipe.objects.filter(shopping_cart__user=self.request.user)
-    #     return Recipe.objects.all()
-
     def get_shopping(self, queryset, name, item_value):
         """Метод получения рецептов в списке покупок."""
+
         if item_value and not self.request.user.is_anonymous:
             return queryset.filter(shopping_cart__user=self.request.user)
         return queryset
+
+
+class IngredientsFilter(filters.FilterSet):
+    """Класс фильтрации ингредиентов."""
+
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='icontains',
+    )
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)

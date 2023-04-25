@@ -1,7 +1,13 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import (
+    IntegerField,
+    ModelSerializer,
+    PrimaryKeyRelatedField,
+    SerializerMethodField,
+    SlugRelatedField,
+    ValidationError,
+)
 
 from recipes.models import (
     Favorite,
@@ -9,42 +15,42 @@ from recipes.models import (
     Recipe,
     RecipeIngredient,
     ShoppingList,
-    Tag
+    Tag,
 )
 from users.serializers import CustomUserSerializer
 
 User = get_user_model()
 
 
-class IngredientsSerializer(serializers.ModelSerializer):
-    """Сериализатор, предоставляющий стоковые поля модели Ingredient."""
+class IngredientsSerializer(ModelSerializer):
+    """Сериализатор полей модели Ingredient."""
 
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
 
-class TagsSerializer(serializers.ModelSerializer):
-    """Сериализатор, предоставляющий стоковые поля модели Tag."""
+class TagsSerializer(ModelSerializer):
+    """Сериализатор полей модели Tag."""
 
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
 
-class ShowRecipeIngredientsSerializer(serializers.ModelSerializer):
-    """Сериализатор представления ингредиентов в рецепте."""
+class ShowRecipeIngredientsSerializer(ModelSerializer):
+    """Сериализатор ингредиентов в рецепте."""
 
-    id = serializers.PrimaryKeyRelatedField(
+    id = PrimaryKeyRelatedField(
         read_only=True,
         source='ingredient'
     )
-    name = serializers.SlugRelatedField(
+    name = SlugRelatedField(
         source='ingredient',
         read_only=True,
         slug_field='name'
     )
-    measurement_unit = serializers.SlugRelatedField(
+    measurement_unit = SlugRelatedField(
         source='ingredient',
         read_only=True,
         slug_field='measurement_unit'
@@ -55,22 +61,22 @@ class ShowRecipeIngredientsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-class ShowRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор, предоставляющий только уникальные поля модели Recipe."""
+class ShowRecipeSerializer(ModelSerializer):
+    """Сериализатор уникальных полей модели Recipe."""
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class ShowRecipeFullSerializer(serializers.ModelSerializer):
-    """Сериализатор представления всех параметров рецепта."""
+class ShowRecipeFullSerializer(ModelSerializer):
+    """Сериализатор параметров рецепта."""
 
     tags = TagsSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
-    ingredients = serializers.SerializerMethodField()
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    ingredients = SerializerMethodField()
+    is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -100,27 +106,27 @@ class ShowRecipeFullSerializer(serializers.ModelSerializer):
         ).exists()
 
 
-class AddRecipeIngredientsSerializer(serializers.ModelSerializer):
+class AddRecipeIngredientsSerializer(ModelSerializer):
     """Сериализатор, связывающий количество ингредиентов с ингредиентом."""
 
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField()
+    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = IntegerField()
 
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount')
 
 
-class AddRecipeSerializer(serializers.ModelSerializer):
+class AddRecipeSerializer(ModelSerializer):
     """Сериализатор, создающий новый рецепт."""
 
     image = Base64ImageField()
     author = CustomUserSerializer(read_only=True)
     ingredients = AddRecipeIngredientsSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(
+    tags = PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
-    cooking_time = serializers.IntegerField()
+    cooking_time = IntegerField()
 
     class Meta:
         model = Recipe
@@ -184,11 +190,11 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         ).data
 
 
-class FavouriteSerializer(serializers.ModelSerializer):
+class FavouriteSerializer(ModelSerializer):
     """Сериализатор, добавляющий рецепт в избранное."""
 
-    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
+    user = PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Favorite
@@ -207,11 +213,11 @@ class FavouriteSerializer(serializers.ModelSerializer):
         return ShowRecipeSerializer(instance.recipe, context=context).data
 
 
-class ShoppingListSerializer(serializers.ModelSerializer):
+class ShoppingListSerializer(ModelSerializer):
     """Сериализатор, создающий список покупок."""
 
-    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
+    user = PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = ShoppingList

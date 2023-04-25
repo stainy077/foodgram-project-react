@@ -7,34 +7,49 @@ from rest_framework.response import Response
 from foodgram.pagination import CustomPageNumberPaginator
 from recipes.filters import IngredientsFilter, RecipeFilter
 from recipes.models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingList, Tag
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingList,
+    Tag,
 )
 from recipes.mixins import RetriveAndListViewSet
 from recipes.permissions import IsAuthorOrAdminOrReadOnly
 from recipes.serializers import (
-    AddRecipeSerializer, FavouriteSerializer, IngredientsSerializer,
-    ShoppingListSerializer, ShowRecipeFullSerializer, TagsSerializer,
+    AddRecipeSerializer,
+    FavouriteSerializer,
+    IngredientsSerializer,
+    ShoppingListSerializer,
+    ShowRecipeFullSerializer,
+    TagsSerializer,
 )
 from recipes.utils import download_response, get_ingredients_list
 
 
 class IngredientsViewSet(RetriveAndListViewSet):
+    """Ингредиенты."""
+
     queryset = Ingredient.objects.all().order_by('id')
-    serializer_class = IngredientsSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend]
     filterset_class = IngredientsFilter
+    serializer_class = IngredientsSerializer
     pagination_class = None
 
 
 class TagsViewSet(RetriveAndListViewSet):
+    """Теги."""
+
     queryset = Tag.objects.all()
-    serializer_class = TagsSerializer
     permission_classes = [permissions.AllowAny]
+    serializer_class = TagsSerializer
     pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Рецепты."""
+
     queryset = Recipe.objects.all().order_by('-id')
     permission_classes = [IsAuthorOrAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
@@ -48,7 +63,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, permission_classes=[IsAuthorOrAdminOrReadOnly])
     def favorite(self, request, pk):
-        """Кастомный метод обработки эндпоинта ./favorite/."""
+        """Метод добавления в избранное ./favorite/."""
         data = {'user': request.user.id, 'recipe': pk}
         serializer = FavouriteSerializer(
             data=data,
@@ -60,6 +75,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
+        """Метод удаления из избранного."""
         if request.user.is_anonymous:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         recipe = get_object_or_404(Recipe, id=pk)
@@ -74,7 +90,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, permission_classes=[IsAuthorOrAdminOrReadOnly])
     def shopping_cart(self, request, pk):
-        """Кастомный метод обработки эндпоинта ./shopping_cart/."""
+        """Метод просмотра и формирования списка покупок ./shopping_cart/."""
         data = {'user': request.user.id, 'recipe': pk}
         serializer = ShoppingListSerializer(
             data=data,
@@ -86,6 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
+        """Метод удаления рецепта из списка покупок ./shopping_cart/."""
         if request.user.is_anonymous:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         bad_request = Response(
@@ -108,7 +125,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
-        """Кастомный метод обработки эндпоинта ./download_shopping_cart/."""
+        """Метод скачивания списка покупок ./download_shopping_cart/."""
         ingredients_list = RecipeIngredient.objects.filter(
             recipe__shopping_cart__user=request.user
         )

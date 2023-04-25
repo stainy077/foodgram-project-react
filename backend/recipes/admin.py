@@ -5,14 +5,14 @@ from recipes import models
 
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
-    """Класс администрирования модели Tag."""
+    """Администрирование модели Tag."""
 
     list_display = ('id', 'name', 'slug')
 
 
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    """Класс администрирования модели Ingredient."""
+    """Администрирование модели Ingredient."""
 
     list_display = ('id', 'name', 'measurement_unit')
     list_filter = ['name']
@@ -20,7 +20,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    """Класс администрирования модели RecipeIngredient на странице Recipe."""
+    """Администрирование модели RecipeIngredient."""
 
     model = models.RecipeIngredient
     min_num = 1
@@ -28,7 +28,7 @@ class RecipeIngredientInline(admin.TabularInline):
 
 
 class RecipeTagInline(admin.TabularInline):
-    """Класс администрирования модели RecipeTag на странице Recipe."""
+    """Администрирование модели RecipeTag."""
 
     model = models.RecipeTag
     min_num = 1
@@ -37,11 +37,10 @@ class RecipeTagInline(admin.TabularInline):
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    """Класс администрирования модели Recipe."""
+    """Администрирование модели Recipe."""
 
     list_display = ('id', 'name', 'author', 'in_favorite')
     list_filter = ['name', 'author', 'tags']
-    inlines = (RecipeIngredientInline,)
     inlines = (RecipeIngredientInline, RecipeTagInline)
 
     def in_favorite(self, obj):
@@ -50,13 +49,13 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(models.Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    """Класс администрирования модели Favorite."""
+    """Администрирование модели Favorite."""
 
     list_display = ('id', 'user', 'recipe')
 
 
 @admin.register(models.ShoppingList)
 class ShoppingListAdmin(admin.ModelAdmin):
-    """Класс администрирования модели ShoppingList."""
+    """Администрирование модели ShoppingList."""
 
     list_display = ('id', 'user', 'recipe')

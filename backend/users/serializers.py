@@ -11,18 +11,27 @@ User = get_user_model()
 
 
 class UserRegistrationSerializer(UserCreateSerializer):
+    """Сериализатор регистрации пользователя."""
+
     class Meta(UserCreateSerializer.Meta):
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
 
 class CustomUserSerializer(UserSerializer):
+    """Сериализатор пользователя."""
+
+
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta():
         model = User
         fields = (
-            'id', 'email', 'username', 'first_name', 'last_name',
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
             'is_subscribed',
         )
 
@@ -37,6 +46,8 @@ class CustomUserSerializer(UserSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Сериализатор подписок."""
+
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
@@ -85,8 +96,14 @@ class ShowFollowersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count',
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
         )
         read_only_fields = fields
 

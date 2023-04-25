@@ -136,3 +136,5 @@ static/
 media/
 backend/static/
 backend/media/
+
+.vscose
