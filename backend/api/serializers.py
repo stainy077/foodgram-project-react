@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import status
 from rest_framework.serializers import (
     IntegerField,
     ModelSerializer,
@@ -17,9 +19,121 @@ from recipes.models import (
     ShoppingList,
     Tag,
 )
-from users.serializers import CustomUserSerializer
+from users.models import Follow
 
 User = get_user_model()
+
+
+class UserRegistrationSerializer(UserCreateSerializer):
+    """Сериализатор регистрации пользователя."""
+
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = ('email', 'username', 'first_name', 'last_name', 'password')
+
+
+class CustomUserSerializer(UserSerializer):
+    """Сериализатор пользователя."""
+
+    is_subscribed = SerializerMethodField(read_only=True)
+
+    class Meta():
+        model = User
+        fields = (
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+        )
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(
+            user=self.context['request'].user,
+            author=obj,
+        ).exists()
+
+
+class FollowSerializer(ModelSerializer):
+    """Сериализатор подписок."""
+
+    user = PrimaryKeyRelatedField(queryset=User.objects.all())
+    author = PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Follow
+        fields = ('user', 'author')
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        author_id = data['author'].id
+        if Follow.objects.filter(user=user, author__id=author_id).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого автора!',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if user.id == author_id:
+            raise ValidationError(
+                detail='Нельзя подписаться на себя!',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return ShowFollowersSerializer(
+            instance.author,
+            context={'request': request},
+        ).data
+
+
+class FollowingRecipesSerializers(ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class ShowFollowersSerializer(ModelSerializer):
+    is_subscribed = SerializerMethodField()
+    recipes = SerializerMethodField()
+    recipes_count = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
+        read_only_fields = fields
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return obj.follower.filter(user=obj, author=request.user).exists()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes = obj.recipes.all()
+        return FollowingRecipesSerializers(
+            recipes,
+            many=True,
+            context={'request': request},
+        ).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
 
 class IngredientsSerializer(ModelSerializer):
@@ -81,9 +195,16 @@ class ShowRecipeFullSerializer(ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'tags', 'author', 'ingredients',
-            'is_favorited', 'is_in_shopping_cart',
-            'name', 'image', 'text', 'cooking_time',
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
         )
 
     def get_ingredients(self, obj):
@@ -130,8 +251,16 @@ class AddRecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients',
-                  'name', 'image', 'text', 'cooking_time')
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )
 
     def validate_ingredients(self, data):
         ingredients = self.initial_data.get('ingredients')
@@ -139,13 +268,16 @@ class AddRecipeSerializer(ModelSerializer):
             raise ValidationError('Не выбрано ни одного ингредиента!')
         for ingredient in ingredients:
             if int(ingredient['amount']) <= 0:
-                raise ValidationError('Количество должно быть положительным!')
+                raise ValidationError(
+                    'Количество ингредиента должно быть больше 0!',
+                )
         return data
 
     def validate_cooking_time(self, data):
         if data <= 0:
-            raise ValidationError('Время готовки должно быть положительным'
-                                  'числом, не менее 1 минуты!')
+            raise ValidationError(
+                'Время готовки должно быть не менее 1 минуты!',
+            )
         return data
 
     def add_recipe_ingredients(self, ingredients, recipe):
@@ -180,7 +312,6 @@ class AddRecipeSerializer(ModelSerializer):
         if 'tags' in self.initial_data:
             tags_data = validated_data.pop('tags')
             recipe.tags.set(tags_data)
-        super().update(recipe, validated_data)
         return super().update(recipe, validated_data)
 
     def to_representation(self, recipe):

@@ -4,8 +4,18 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.filters import IngredientsFilter, RecipeFilter
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers import (
+    AddRecipeSerializer,
+    FavouriteSerializer,
+    IngredientsSerializer,
+    ShoppingListSerializer,
+    ShowRecipeFullSerializer,
+    TagsSerializer,
+)
 from foodgram.pagination import CustomPageNumberPaginator
-from recipes.filters import IngredientsFilter, RecipeFilter
+from recipes.mixins import RetriveAndListViewSet
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -13,16 +23,6 @@ from recipes.models import (
     RecipeIngredient,
     ShoppingList,
     Tag,
-)
-from recipes.mixins import RetriveAndListViewSet
-from recipes.permissions import IsAuthorOrAdminOrReadOnly
-from recipes.serializers import (
-    AddRecipeSerializer,
-    FavouriteSerializer,
-    IngredientsSerializer,
-    ShoppingListSerializer,
-    ShowRecipeFullSerializer,
-    TagsSerializer,
 )
 from recipes.utils import download_response, get_ingredients_list
 
@@ -51,7 +51,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Рецепты."""
 
     queryset = Recipe.objects.all().order_by('-id')
-    permission_classes = [IsAuthorOrAdminOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
     pagination_class = CustomPageNumberPaginator
@@ -61,7 +61,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ShowRecipeFullSerializer
         return AddRecipeSerializer
 
-    @action(detail=True, permission_classes=[IsAuthorOrAdminOrReadOnly])
+    @action(detail=True, permission_classes=[IsAuthorOrReadOnly])
     def favorite(self, request, pk):
         """Метод добавления в избранное ./favorite/."""
         data = {'user': request.user.id, 'recipe': pk}
@@ -88,7 +88,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    @action(detail=True, permission_classes=[IsAuthorOrAdminOrReadOnly])
+    @action(detail=True, permission_classes=[IsAuthorOrReadOnly])
     def shopping_cart(self, request, pk):
         """Метод просмотра и формирования списка покупок ./shopping_cart/."""
         data = {'user': request.user.id, 'recipe': pk}

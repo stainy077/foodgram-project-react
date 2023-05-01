@@ -1,6 +1,9 @@
+
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from foodgram.settings import TWO
 
 User = get_user_model()
 
@@ -42,8 +45,6 @@ class Tag(models.Model):
     slug = models.SlugField(
         max_length=200,
         unique=True,
-        null=False,
-        blank=False,
         verbose_name='Идентификатор тега',
     )
 
@@ -67,18 +68,13 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=200,
-        unique=True,
         verbose_name='Название рецепта',
     )
     image = models.ImageField(
         upload_to='recipes/',
-        blank=False,
-        null=False,
-        verbose_name='Фото рецепта',
+        verbose_name='Изображение',
     )
     text = models.TextField(
-        blank=False,
-        null=False,
         verbose_name='Описание рецепта',
     )
     ingredients = models.ManyToManyField(
@@ -107,7 +103,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return self.name[:2]
+        return self.name[:TWO]
 
 
 class RecipeIngredient(models.Model):

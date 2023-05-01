@@ -5,9 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.serializers import FollowSerializer, ShowFollowersSerializer
 from foodgram.pagination import CustomPageNumberPaginator
 from users.models import Follow
-from users.serializers import FollowSerializer, ShowFollowersSerializer
 
 User = get_user_model()
 
@@ -27,15 +27,9 @@ class FollowApiView(APIView):
     def delete(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
-        try:
-            subscription = Follow.objects.get(user=user, author=author)
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Follow.DoesNotExist:
-            return Response(
-                'Ошибка отписки',
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        subscription = get_object_or_404(Follow, user=user, author=author)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ListFollowViewSet(generics.ListAPIView):
