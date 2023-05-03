@@ -8,9 +8,8 @@ from api.filters import IngredientsFilter, RecipeFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     AddRecipeSerializer,
-    FavouriteSerializer,
     IngredientsSerializer,
-    ShoppingListSerializer,
+    RecipeSerializer,
     ShowRecipeFullSerializer,
     TagsSerializer,
 )
@@ -61,67 +60,68 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ShowRecipeFullSerializer
         return AddRecipeSerializer
 
-    @action(detail=True, permission_classes=[IsAuthorOrReadOnly])
-    def favorite(self, request, pk):
-        """Метод добавления в избранное ./favorite/."""
-        data = {'user': request.user.id, 'recipe': pk}
-        serializer = FavouriteSerializer(
-            data=data,
-            context={'request': request},
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @favorite.mapping.delete
-    def delete_favorite(self, request, pk):
-        """Метод удаления из избранного."""
-        if request.user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        recipe = get_object_or_404(Recipe, id=pk)
-        try:
-            Favorite.objects.get(user=request.user, recipe=recipe).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Favorite.DoesNotExist:
+    def add_obj(self, model, user, id):
+        """Функция добавления нового объекта выбранной модели."""
+        if model.objects.filter(user=user, recipe__id=id).exists():
             return Response(
-                'Данный рецепт уже отсутствует в избранном.',
+                {'errors': 'Рецепт уже добавлен!'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        recipe = get_object_or_404(Recipe, id=id)
+        model.objects.create(user=user, recipe=recipe)
+        serialized_obj = RecipeSerializer(recipe)
+        return Response(serialized_obj.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, permission_classes=[IsAuthorOrReadOnly])
-    def shopping_cart(self, request, pk):
-        """Метод просмотра и формирования списка покупок ./shopping_cart/."""
-        data = {'user': request.user.id, 'recipe': pk}
-        serializer = ShoppingListSerializer(
-            data=data,
-            context={'request': request},
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @shopping_cart.mapping.delete
-    def delete_shopping_cart(self, request, pk):
-        """Метод удаления рецепта из списка покупок ./shopping_cart/."""
-        if request.user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        bad_request = Response(
-            'Данный рецепт уже отсутствует в списке покупок.',
+    def delete_obj(self, model, user, id):
+        """Функция удаления выбранного объекта модели."""
+        recipe = model.objects.filter(user=user, recipe__id=id)
+        if recipe.exists():
+            recipe.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'errors': 'Рецепт уже удален!'},
             status=status.HTTP_400_BAD_REQUEST,
         )
-        try:
-            try:
-                recipe = Recipe.objects.get(id=pk)
-            except Recipe.DoesNotExist:
-                return bad_request
-            shopping_list = ShoppingList.objects.get(
+
+    @action(
+        methods=['POST', 'DELETE'],
+        detail=True,
+        permission_classes=[IsAuthorOrReadOnly],
+    )
+    def favorite(self, request, pk):
+        """Метод обработки эндпоинта /favorite/."""
+        if request.method == 'POST':
+            return self.add_obj(
+                model=Favorite,
                 user=request.user,
-                recipe=recipe,
+                id=pk,
             )
-            shopping_list.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except ShoppingList.DoesNotExist:
-            return bad_request
+        else:
+            return self.delete_obj(
+                model=Favorite,
+                user=request.user,
+                id=pk,
+            )
+
+    @action(
+        methods=['POST', 'DELETE'],
+        detail=True,
+        permission_classes=[IsAuthorOrReadOnly],
+    )
+    def shopping_cart(self, request, pk):
+        """Метод обработки эндпоинта /shopping_cart/."""
+        if request.method == 'POST':
+            return self.add_obj(
+                model=ShoppingList,
+                user=request.user,
+                id=pk,
+            )
+        else:
+            return self.delete_obj(
+                model=ShoppingList,
+                user=request.user,
+                id=pk,
+            )
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):

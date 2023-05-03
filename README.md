@@ -40,6 +40,7 @@ docker-compose exec web python manage.py loaddata fixtures.json
 
 
 ##### Проект доступен по адресу:
+158.160.19.188
 
 ##### Аккаунт администратора Django:
 - Пользователь: admin@user.ru

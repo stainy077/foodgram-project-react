@@ -91,7 +91,8 @@ class FollowSerializer(ModelSerializer):
         ).data
 
 
-class FollowingRecipesSerializers(ModelSerializer):
+class RecipeSerializer(ModelSerializer):
+    """Сериализатор уникальных полей модели Recipe."""
 
     class Meta:
         model = Recipe
@@ -126,7 +127,7 @@ class ShowFollowersSerializer(ModelSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes = obj.recipes.all()
-        return FollowingRecipesSerializers(
+        return RecipeSerializer(
             recipes,
             many=True,
             context={'request': request},
@@ -173,14 +174,6 @@ class ShowRecipeIngredientsSerializer(ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
-
-
-class ShowRecipeSerializer(ModelSerializer):
-    """Сериализатор уникальных полей модели Recipe."""
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShowRecipeFullSerializer(ModelSerializer):
@@ -281,19 +274,14 @@ class AddRecipeSerializer(ModelSerializer):
         return data
 
     def add_recipe_ingredients(self, ingredients, recipe):
+        recipe_ingredients = []
         for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            amount = ingredient['amount']
-            if RecipeIngredient.objects.filter(
+            recipe_ingredients.append(RecipeIngredient(
                 recipe=recipe,
-                ingredient=ingredient_id,
-            ).exists():
-                amount += ingredient['amount']
-            RecipeIngredient.objects.update_or_create(
-                recipe=recipe,
-                ingredient=ingredient_id,
-                defaults={'amount': amount},
-            )
+                ingredient=ingredient.get('id'),
+                amount=ingredient.get('amount'),
+            ))
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
         author = self.context.get('request').user
@@ -315,56 +303,7 @@ class AddRecipeSerializer(ModelSerializer):
         return super().update(recipe, validated_data)
 
     def to_representation(self, recipe):
-        return ShowRecipeSerializer(
+        return RecipeSerializer(
             recipe,
             context={'request': self.context.get('request')},
         ).data
-
-
-class FavouriteSerializer(ModelSerializer):
-    """Сериализатор, добавляющий рецепт в избранное."""
-
-    recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
-    user = PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    class Meta:
-        model = Favorite
-        fields = ('user', 'recipe')
-
-    def validate(self, data):
-        user = data['user']
-        recipe_id = data['recipe'].id
-        if Favorite.objects.filter(user=user, recipe__id=recipe_id).exists():
-            raise ValidationError('Рецепт уже добавлен в избранное!')
-        return data
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return ShowRecipeSerializer(instance.recipe, context=context).data
-
-
-class ShoppingListSerializer(ModelSerializer):
-    """Сериализатор, создающий список покупок."""
-
-    recipe = PrimaryKeyRelatedField(queryset=Recipe.objects.all())
-    user = PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    class Meta:
-        model = ShoppingList
-        fields = ('user', 'recipe')
-
-    def validate(self, data):
-        user = data['user']
-        recipe_id = data['recipe'].id
-        if ShoppingList.objects.filter(
-            user=user,
-            recipe__id=recipe_id,
-        ).exists():
-            raise ValidationError('Рецепт уже добавлен в список покупок!')
-        return data
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return ShowRecipeSerializer(instance.recipe, context=context).data
