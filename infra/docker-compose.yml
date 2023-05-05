@@ -3,6 +3,8 @@ services:
   db:
     image: postgres:14.0
     container_name: foodgram-db
+    # environment:
+      # POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - database:/var/lib/postgresql/data/
     env_file:
