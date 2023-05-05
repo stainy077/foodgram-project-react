@@ -45,7 +45,7 @@ jobs:
             tags: ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest,]
     needs: build_and_push_to_docker_hub
     steps:
     - name: executing remote ssh commands to deploy
