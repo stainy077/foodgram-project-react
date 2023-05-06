@@ -138,3 +138,6 @@ backend/static/
 backend/media/
 
 .vscose
+
+dump.json
+foodgram.dump
