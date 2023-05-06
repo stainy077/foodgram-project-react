@@ -13,9 +13,7 @@ services:
 
   backend:
     container_name: foodgram-backend
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: stainy077/foodgram:latest
     volumes:
       - static_data:/app/static/
       - media_data:/app/media/
