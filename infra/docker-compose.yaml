@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-    image: postgres:14.0
+    image: postgres:13.0
     container_name: foodgram-db
     # environment:
       # POSTGRES_HOST_AUTH_METHOD: trust
