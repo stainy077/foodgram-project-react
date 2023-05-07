@@ -5,6 +5,10 @@ services:
     container_name: foodgram-db
     # environment:
       # POSTGRES_HOST_AUTH_METHOD: trust
+    command:
+      - "postgres"
+      - "-c"
+      - "listen_addresses = '*'"
     volumes:
       - database:/var/lib/postgresql/data/
     env_file:
