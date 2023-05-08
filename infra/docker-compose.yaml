@@ -1,37 +1,38 @@
 version: '3.8'
 services:
-  db:
-    image: postgres:14.0
-    container_name: foodgram-db
+  datab:
+    image: postgres:13.1
+    container_name: food-db
     # environment:
       # POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
-      - database:/var/lib/postgresql/data/
+      # - database:/var/lib/postgresql/data/
+      - database:/var/lib/postgresql/13/main
     env_file:
       - ./.env
     restart: always
 
-  backend:
-    container_name: foodgram-backend
+  back:
+    container_name: food-backend
     image: stainy077/foodgram-backend:latest
     volumes:
       - static_data:/app/static/
       - media_data:/app/media/
     restart: always
     depends_on:
-      - db
+      - datab
     env_file:
       - ./.env
 
-  frontend:
-    container_name: foodgram-frontend
+  front:
+    container_name: food-frontend
     image: stainy077/foodgram-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
   nginx:
       image: nginx:1.21.3-alpine
-      container_name: foodgram-nginx
+      container_name: food-nginx
       ports:
         - "80:80"
       volumes:
@@ -40,10 +41,10 @@ services:
         - ../docs/:/usr/share/nginx/html/api/docs/
         - static_data:/static/
         - media_data:/media/
-      restart: always
+      restart: alwayss
       depends_on:
-        - backend
-        - frontend
+        - back
+        - front
 
 volumes:
   database:
