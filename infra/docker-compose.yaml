@@ -41,7 +41,7 @@ services:
         - ../docs/:/usr/share/nginx/html/api/docs/
         - static_data:/static/
         - media_data:/media/
-      restart: alwayss
+      restart: always
       depends_on:
         - back
         - front
