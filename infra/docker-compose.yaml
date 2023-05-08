@@ -3,13 +3,15 @@ services:
   datab:
     image: postgres:13.1
     container_name: food-db
-    # environment:
+    environment:
       # POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: foodgram_data
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - database:/var/lib/postgresql/data/
-      # - database:/var/lib/postgresql/13/main
     env_file:
-      - ./.env
+      - .env
     restart: always
 
   backend:
@@ -22,7 +24,7 @@ services:
     depends_on:
       - datab
     env_file:
-      - ./.env
+      - .env
 
   frontend:
     container_name: food-frontend
