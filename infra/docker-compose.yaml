@@ -6,13 +6,13 @@ services:
     # environment:
       # POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
-      # - database:/var/lib/postgresql/data/
-      - database:/var/lib/postgresql/13/main
+      - database:/var/lib/postgresql/data/
+      # - database:/var/lib/postgresql/13/main
     env_file:
       - ./.env
     restart: always
 
-  back:
+  backend:
     container_name: food-backend
     image: stainy077/foodgram-backend:latest
     volumes:
@@ -24,7 +24,7 @@ services:
     env_file:
       - ./.env
 
-  front:
+  frontend:
     container_name: food-frontend
     image: stainy077/foodgram-frontend:latest
     volumes:
@@ -43,8 +43,8 @@ services:
         - media_data:/media/
       restart: always
       depends_on:
-        - back
-        - front
+        - backend
+        - frontend
 
 volumes:
   database:
