@@ -17,10 +17,13 @@ class FollowApiView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, id):
+    def post(self, request, id):
+        author = get_object_or_404(User, id=id)
+
         data = {'user': request.user.id, 'author': id}
         serializer = FollowSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+        Follow.objects.create(user=request.user, author=author)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
