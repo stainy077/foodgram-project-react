@@ -8,14 +8,14 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', default='fake')
+SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-dyv12feh_(f7r@za881@ayr18kf!491_k5p$g@)h8lemixl4&+')
 
 DEBUG = os.getenv('DEBUG', default='False') == 'True'
 
 ALLOWED_HOSTS = [
+    '*',
     '158.160.19.188',
     'stainy07.ddns.net',
-    'localhost',
 ]
 
 INSTALLED_APPS = [

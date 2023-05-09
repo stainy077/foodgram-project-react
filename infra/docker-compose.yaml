@@ -44,7 +44,7 @@ services:
         - static_data:/static/
         - media_data:/media/
       restart: always
-      depends_on:
+      depends_on: 
         - backend
         - frontend
 
