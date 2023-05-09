@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 LABEL author='stainy077@yandex.ru' version=2023.05
 
 WORKDIR /app
