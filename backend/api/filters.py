@@ -31,10 +31,12 @@ class RecipeFilter(filters.FilterSet):
 
     def get_favorite(self, queryset, name, item_value):
         """Метод получения рецептов в избранном."""
+        if item_value and not self.request.user.is_anonymous:
+            return queryset.filter(in_favorite__user=self.request.user)
+        return queryset
+        #     return Recipe.objects.filter(in_favorite__user=self.request.user)
+        # return Recipe.objects.all()
 
-        if item_value:
-            return Recipe.objects.filter(in_favorite__user=self.request.user)
-        return Recipe.objects.all()
 
     def get_shopping(self, queryset, name, item_value):
         """Метод получения рецептов в списке покупок."""

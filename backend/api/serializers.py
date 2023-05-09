@@ -56,10 +56,6 @@ class CustomUserSerializer(UserSerializer):
             user=user,
             author=obj,
         ).exists()
-        
-        # request = self.context.get('request')
-        # if not request or request.user.is_anonymous:
-        #     return False
 
 
 class FollowSerializer(ModelSerializer):
