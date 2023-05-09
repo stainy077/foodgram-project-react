@@ -12,7 +12,6 @@ from rest_framework.serializers import (
 )
 
 from recipes.models import (
-    Favorite,
     Ingredient,
     Recipe,
     RecipeIngredient,
@@ -208,7 +207,6 @@ class ShowRecipeFullSerializer(ModelSerializer):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        # return Favorite.objects.filter(recipe=obj, user=request.user).exists()
         return request.user.favorites.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):

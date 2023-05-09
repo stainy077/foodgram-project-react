@@ -6,17 +6,16 @@ from recipes.models import Ingredient, Recipe
 class RecipeFilter(filters.FilterSet):
     """Класс фильтрации рецептов."""
 
-    tags = filters.AllValuesMultipleFilter(
+    # tags = filters.AllValuesMultipleFilter(
+    tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         lookup_expr="iexact",
         label='Tags',
     )
-    # is_favorited = filters.BooleanFilter(
     is_favorited = filters.NumberFilter(
         method='get_favorite',
         label='Favorited',
     )
-    # is_in_shopping_cart = filters.BooleanFilter(
     is_in_shopping_cart = filters.NumberFilter(
         method='get_shopping',
         label='Is in shopping list',
@@ -36,9 +35,6 @@ class RecipeFilter(filters.FilterSet):
         if item_value and not self.request.user.is_anonymous:
             return queryset.filter(in_favorite__user=self.request.user)
         return queryset
-        #     return Recipe.objects.filter(in_favorite__user=self.request.user)
-        # return Recipe.objects.all()
-
 
     def get_shopping(self, queryset, name, item_value):
         """Метод получения рецептов в списке покупок."""
