@@ -11,11 +11,13 @@ class RecipeFilter(filters.FilterSet):
         lookup_expr="iexact",
         label='Tags',
     )
-    is_favorited = filters.BooleanFilter(
+    # is_favorited = filters.BooleanFilter(
+    is_favorited = filters.NumberFilter(
         method='get_favorite',
         label='Favorited',
     )
-    is_in_shopping_cart = filters.BooleanFilter(
+    # is_in_shopping_cart = filters.BooleanFilter(
+    is_in_shopping_cart = filters.NumberFilter(
         method='get_shopping',
         label='Is in shopping list',
     )
