@@ -6,8 +6,7 @@ from recipes.models import Ingredient, Recipe
 class RecipeFilter(filters.FilterSet):
     """Класс фильтрации рецептов."""
 
-    # tags = filters.AllValuesMultipleFilter(
-    tags = filters.ModelMultipleChoiceFilter(
+    tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         lookup_expr="iexact",
         label='Tags',
