@@ -1,4 +1,5 @@
 import django_filters as filters
+from rest_framework.filters import SearchFilter
 
 from recipes.models import Ingredient, Recipe
 
@@ -8,7 +9,7 @@ class RecipeFilter(filters.FilterSet):
 
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
-        lookup_expr="iexact",
+        # lookup_expr="iexact",
         label='Tags',
     )
     is_favorited = filters.NumberFilter(
@@ -43,14 +44,24 @@ class RecipeFilter(filters.FilterSet):
         return queryset
 
 
-class IngredientsFilter(filters.FilterSet):
-    """Класс фильтрации ингредиентов."""
+# class IngredientsFilter(filters.FilterSet):
+#     """Класс фильтрации ингредиентов."""
 
-    name = filters.CharFilter(
-        field_name='name',
-        lookup_expr='icontains',
-    )
+#     name = filters.CharFilter(
+#         field_name='name',
+#         lookup_expr='icontains',
+#     )
 
-    class Meta:
-        model = Ingredient
-        fields = ('name',)
+#     class Meta:
+#         model = Ingredient
+#         fields = ('name',)
+
+
+# class IngredientsFilter(filters.FilterSet):
+
+
+
+
+
+
+# name = SearchFilter(field_name='^name')

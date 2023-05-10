@@ -19,12 +19,12 @@ class FollowApiView(APIView):
 
     def post(self, request, id):
         author = get_object_or_404(User, id=id)
-
-        data = {'user': request.user.id, 'author': id}
-        serializer = FollowSerializer(data=data, context={'request': request})
+        # data = {'user': request.user.id, 'author': id}
+        # serializer = FollowSerializer(data=data, context={'request': request})
+        serializer = FollowSerializer(author, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         Follow.objects.create(user=request.user, author=author)
-        serializer.save()
+        # serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, id):
@@ -48,5 +48,6 @@ class ListFollowViewSet(generics.ListAPIView):
             return User.objects.filter(following__user=user)
         return Response(
             'У Вас нет подписок!',
-            status=status.HTTP_400_BAD_REQUEST,
+            # status=status.HTTP_400_BAD_REQUEST,
+            User.objects.filter(following__user=user)
         )

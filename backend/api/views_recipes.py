@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, viewsets, status
+from rest_framework import permissions, viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -31,8 +31,11 @@ class IngredientsViewSet(RetriveAndListViewSet):
 
     queryset = Ingredient.objects.all().order_by('id')
     permission_classes = [permissions.AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = IngredientsFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = IngredientsFilter
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['^name']
+
     serializer_class = IngredientsSerializer
     pagination_class = None
 
