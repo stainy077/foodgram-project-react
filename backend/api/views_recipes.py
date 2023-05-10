@@ -4,7 +4,7 @@ from rest_framework import permissions, viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.filters import IngredientsFilter, RecipeFilter
+from api.filters import RecipeFilter   # IngredientsFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     AddRecipeSerializer,
