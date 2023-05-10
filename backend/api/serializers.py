@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -125,7 +126,7 @@ class ShowFollowersSerializer(ModelSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes = obj.recipes.all()
+        recipes = obj.recipes.all()[:(int(settings.RECIPES_LIMIT))]
         return RecipeSerializer(
             recipes,
             many=True,

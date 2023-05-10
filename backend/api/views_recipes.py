@@ -34,7 +34,7 @@ class IngredientsViewSet(RetriveAndListViewSet):
     # filter_backends = [DjangoFilterBackend]
     # filterset_class = IngredientsFilter
     filter_backends = [filters.SearchFilter]
-    search_fields = ['^name']
+    search_fields = ['name']
 
     serializer_class = IngredientsSerializer
     pagination_class = None

@@ -140,7 +140,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Блок констант
 TWO: Final[int] = 2
-RECIPES_LIMIT: Final[int] = 3
+RECIPES_LIMIT: Final[int] = 4
 
 LOGGING = {
     'version': 1,
