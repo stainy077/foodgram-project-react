@@ -10,8 +10,7 @@ class RecipeFilter(filters.FilterSet):
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         # # lookup_expr="iexact",
-        # label='Tags',
-        to_field_name='slug',
+        label='Tags',
         queryset=Tag.objects.all(),
     )
     is_favorited = filters.NumberFilter(
