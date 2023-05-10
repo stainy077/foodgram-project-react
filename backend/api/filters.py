@@ -1,22 +1,22 @@
-import django_filters as filter
-from rest_framework import filters
+import django_filters as filters
+# from rest_framework import filters
 
 from recipes.models import Ingredient, Recipe
 
 
-class RecipeFilter(filter.FilterSet):
+class RecipeFilter(filters.FilterSet):
     """Класс фильтрации рецептов."""
 
-    tags = filter.AllValuesMultipleFilter(
+    tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         # lookup_expr="iexact",
         label='Tags',
     )
-    is_favorited = filter.NumberFilter(
+    is_favorited = filters.NumberFilter(
         method='get_favorite',
         label='Favorited',
     )
-    is_in_shopping_cart = filter.NumberFilter(
+    is_in_shopping_cart = filters.NumberFilter(
         method='get_shopping',
         label='Is in shopping list',
     )
@@ -44,14 +44,14 @@ class RecipeFilter(filter.FilterSet):
         return queryset
 
 
-# class IngredientsFilter(filters.FilterSet):
-#     """Класс фильтрации ингредиентов."""
+class IngredientsFilter(filters.FilterSet):
+    """Класс фильтрации ингредиентов."""
 
-#     name = filters.CharFilter(
-#         field_name='name',
-#         lookup_expr='icontains',
-#     )
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='icontains',
+    )
 
-#     class Meta:
-#         model = Ingredient
-#         fields = ('name',)
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
