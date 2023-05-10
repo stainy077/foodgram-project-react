@@ -31,9 +31,10 @@ class IngredientsViewSet(RetriveAndListViewSet):
 
     queryset = Ingredient.objects.all().order_by('id')
     permission_classes = [permissions.AllowAny]
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = [filters.SearchFilter]
     # filterset_class = IngredientsFilter
-    search_fields = ('^name',)
+    search_fields = ['^name']
     serializer_class = IngredientsSerializer
     pagination_class = None
 
