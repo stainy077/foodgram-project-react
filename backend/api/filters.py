@@ -1,7 +1,7 @@
 import django_filters as filters
 # from rest_framework import filters
 
-from recipes.models import Ingredient, Recipe
+from recipes.models import Ingredient, Recipe, Tag
 
 
 class RecipeFilter(filters.FilterSet):
@@ -9,8 +9,10 @@ class RecipeFilter(filters.FilterSet):
 
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
-        # lookup_expr="iexact",
-        label='Tags',
+        # # lookup_expr="iexact",
+        # label='Tags',
+        to_field_name='slug',
+        queryset=Tag.objects.all(),
     )
     is_favorited = filters.NumberFilter(
         method='get_favorite',
