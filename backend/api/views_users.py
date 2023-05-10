@@ -24,7 +24,7 @@ class FollowApiView(APIView):
         serializer = FollowSerializer(author, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         Follow.objects.create(user=request.user, author=author)
-        # serializer.save()
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, id):

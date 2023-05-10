@@ -4,7 +4,7 @@ from rest_framework import permissions, viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.filters import RecipeFilter   # IngredientsFilter
+from api.filters import RecipeFilter  # IngredientsFilter, 
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     AddRecipeSerializer,
@@ -31,11 +31,9 @@ class IngredientsViewSet(RetriveAndListViewSet):
 
     queryset = Ingredient.objects.all().order_by('id')
     permission_classes = [permissions.AllowAny]
-    # filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     # filterset_class = IngredientsFilter
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
-
+    search_fields = ('^name',)
     serializer_class = IngredientsSerializer
     pagination_class = None
 
