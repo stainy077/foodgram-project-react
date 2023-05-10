@@ -49,7 +49,8 @@ class IngredientsFilter(filters.FilterSet):
 
     name = filters.CharFilter(
         field_name='name',
-        lookup_expr='icontains',
+        # lookup_expr='icontains',
+        lookup_expr='istartswith',
     )
 
     class Meta:
