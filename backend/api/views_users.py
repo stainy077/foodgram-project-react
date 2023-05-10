@@ -49,5 +49,5 @@ class ListFollowViewSet(generics.ListAPIView):
         return Response(
             'У Вас нет подписок!',
             # status=status.HTTP_400_BAD_REQUEST,
-            User.objects.filter(following__user=user)
+            User.objects.filter(following__user=user),
         )

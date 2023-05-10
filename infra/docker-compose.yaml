@@ -4,7 +4,6 @@ services:
     image: postgres:13.1
     container_name: food-db
     environment:
-      # POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: foodgram_data
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
